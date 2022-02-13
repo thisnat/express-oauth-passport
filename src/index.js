@@ -2,12 +2,20 @@ const express = require('express')
 const session = require('express-session')
 const passport = require('passport')
 const cors = require('cors')
+const mongoose = require('mongoose')
+const noteRouter = require('./routes/NoteRouter')
 require('dotenv').config()
 require('./passport')
 
 const app = express()
 const PORT = process.env.PORT || 2626
 const CLIENT_END_POINT = process.env.CLIENT_END_POINT || "http://localhost:3000"
+
+mongoose.connect(process.env.MONGO, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
+    console.log('database connected')
+}, err => {
+    console.log(`cant connect database : ${err}`)
+})
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -20,13 +28,14 @@ app.use(cors({
     methods: "GET,POST,PUT,DELETE",
     credentials: true,
 }))
+app.set('trust proxy', 1)
 
 app.get('/heartbeat', (req, res) => {
     res.send({ "status": "ok" })
 })
 
 app.get("/getuser", (req, res) => {
-    if (req.user){
+    if (req.user) {
         res.send(req.user)
     } else {
         res.sendStatus(404)
@@ -53,5 +62,7 @@ app.get('/auth/google/callback',
 app.get('/auth/google/failure', (req, res) => {
     res.send('Failed to authenticate..')
 })
+
+app.use('/note', noteRouter)
 
 app.listen(PORT, () => console.log(`listening on port ${PORT}`))

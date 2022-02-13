@@ -12,14 +12,14 @@ const CLIENT_END_POINT = process.env.CLIENT_END_POINT || "http://localhost:3000"
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }))
+app.use(session({ secret: process.env.SECRET, resave: false, saveUninitialized: true }))
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(cors({
     origin: CLIENT_END_POINT,
     methods: "GET,POST,PUT,DELETE",
     credentials: true,
-}));
+}))
 
 app.get('/heartbeat', (req, res) => {
     res.send({ "status": "ok" })

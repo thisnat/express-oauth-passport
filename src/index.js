@@ -20,7 +20,16 @@ mongoose.connect(process.env.MONGO, { useNewUrlParser: true, useUnifiedTopology:
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-app.use(session({ secret: process.env.SECRET, resave: false, saveUninitialized: true }))
+app.use(session({
+    secret: process.env.SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        sameSite: "none",
+        secure: true,
+        maxAge: 1000 * 60 * 60 * 24 * 7 // One Week
+    }
+}))
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(cors({
@@ -38,7 +47,7 @@ app.get("/getuser", (req, res) => {
     if (req.user) {
         res.send(req.user)
     } else {
-        res.sendStatus(404)
+        res.sendStatus(401)
     }
 })
 
